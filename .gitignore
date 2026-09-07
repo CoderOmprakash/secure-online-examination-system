@@ -1,0 +1,6 @@
+database.db
+*.db
+__pycache__/
+*.pyc
+.venv/
+*.pub

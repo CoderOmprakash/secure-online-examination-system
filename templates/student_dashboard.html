@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Student Dashboard
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            Student Dashboard
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('my_results') }}">
+                My Results
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="container">
+
+        <h2>
+
+            Welcome,
+            {{ session['name'] }}
+
+        </h2>
+
+
+        {% with messages =
+        get_flashed_messages() %}
+
+        {% if messages %}
+
+        {% for message in messages %}
+
+        <div class="alert">
+
+            {{ message }}
+
+        </div>
+
+        {% endfor %}
+
+        {% endif %}
+
+        {% endwith %}
+
+
+        <h3>
+            Available Exams
+        </h3>
+
+
+        <div class="exam-grid">
+
+
+            {% for exam in exams %}
+
+
+            <div class="exam-card">
+
+                <h3>
+
+                    {{ exam['title'] }}
+
+                </h3>
+
+
+                <p>
+
+                    Duration:
+
+                    {{ exam['duration'] }}
+
+                    Minutes
+
+                </p>
+
+
+                <p>
+
+                    Questions:
+
+                    {{ exam['question_count'] }}
+
+                </p>
+
+
+                {% if exam['attempted'] > 0 %}
+
+                <button class="btn disabled" disabled>
+
+                    Already Attempted
+
+                </button>
+
+                {% elif exam['question_count'] == 0 %}
+
+                <button class="btn disabled" disabled>
+
+                    No Questions
+
+                </button>
+
+                {% else %}
+
+                <a href="{{ url_for('exam', exam_id=exam['id']) }}" class="btn">
+
+                    Start Exam
+
+                </a>
+
+                {% endif %}
+
+            </div>
+
+
+            {% else %}
+
+
+            <p>
+                No exams available.
+            </p>
+
+
+            {% endfor %}
+
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

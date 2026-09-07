@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Admin Dashboard
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            Admin Dashboard
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('create_exam') }}">
+                Create Exam
+            </a>
+
+            <a href="{{ url_for('admin_results') }}">
+                Results
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="container">
+
+        <h2>
+            Welcome Administrator
+        </h2>
+
+
+        {% with messages =
+        get_flashed_messages() %}
+
+        {% if messages %}
+
+        {% for message in messages %}
+
+        <div class="alert">
+
+            {{ message }}
+
+        </div>
+
+        {% endfor %}
+
+        {% endif %}
+
+        {% endwith %}
+
+
+        <div class="stats">
+
+            <div class="stat-card">
+
+                <h2>
+
+                    {{ exams|length }}
+
+                </h2>
+
+                <p>
+                    Exams
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h2>
+
+                    {{ student_count }}
+
+                </h2>
+
+                <p>
+                    Students
+                </p>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <h2>
+
+                    {{ result_count }}
+
+                </h2>
+
+                <p>
+                    Results
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <a href="{{ url_for('create_exam') }}" class="btn">
+
+            + Create New Exam
+
+        </a>
+
+
+        <h2>
+            Manage Exams
+        </h2>
+
+
+        <div class="exam-grid">
+
+
+            {% for exam in exams %}
+
+
+            <div class="exam-card">
+
+                <h3>
+
+                    {{ exam['title'] }}
+
+                </h3>
+
+
+                <p>
+
+                    Duration:
+
+                    {{ exam['duration'] }}
+
+                    Minutes
+
+                </p>
+
+
+                <p>
+
+                    Questions:
+
+                    {{ exam['question_count'] }}
+
+                </p>
+
+
+                <a class="btn" href="{{ url_for(
+                    'add_question',
+                    exam_id=exam['id']
+                ) }}">
+
+                    Add Question
+
+                </a>
+
+
+                <a class="btn secondary" href="{{ url_for(
+                    'manage_questions',
+                    exam_id=exam['id']
+                ) }}">
+
+                    Questions
+
+                </a>
+
+
+                <form method="POST" action="{{ url_for(
+                    'delete_exam',
+                    exam_id=exam['id']
+                ) }}" class="inline-form" onsubmit="return confirm('Delete this exam?')">
+
+                    <button class="btn danger" type="submit">
+
+                        Delete
+
+                    </button>
+
+                </form>
+
+            </div>
+
+
+            {% else %}
+
+
+            <p>
+                No exams created.
+            </p>
+
+
+            {% endfor %}
+
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

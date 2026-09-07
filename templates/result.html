@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Result
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            Exam Result
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('student_dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('my_results') }}">
+                My Results
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="result-card">
+
+        <h1>
+            Examination Result
+        </h1>
+
+
+        <h2>
+
+            {{ result['title'] }}
+
+        </h2>
+
+
+        <div class="score">
+
+            {{ result['score'] }}
+
+            /
+
+            {{ result['total'] }}
+
+        </div>
+
+
+        <h2>
+
+            {{ percentage }}%
+
+        </h2>
+
+
+        {% if percentage >= 40 %}
+
+        <div class="pass">
+
+            PASS
+
+        </div>
+
+        {% else %}
+
+        <div class="fail">
+
+            NEEDS IMPROVEMENT
+
+        </div>
+
+        {% endif %}
+
+
+        <p>
+
+            Date:
+
+            {{ result['exam_date'] }}
+
+        </p>
+
+
+        <a href="{{ url_for('student_dashboard') }}" class="btn">
+
+            Back to Dashboard
+
+        </a>
+
+    </div>
+
+</body>
+
+</html>

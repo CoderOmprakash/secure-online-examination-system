@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        All Results
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            Student Results
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('admin_dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for('logout') }}">
+                Logout
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="container">
+
+        <h2>
+            All Examination Results
+        </h2>
+
+
+        <table>
+
+            <tr>
+
+                <th>
+                    Student
+                </th>
+
+                <th>
+                    Email
+                </th>
+
+                <th>
+                    Exam
+                </th>
+
+                <th>
+                    Score
+                </th>
+
+                <th>
+                    Total
+                </th>
+
+                <th>
+                    Date
+                </th>
+
+            </tr>
+
+
+            {% for result in results %}
+
+
+            <tr>
+
+                <td>
+
+                    {{ result['name'] }}
+
+                </td>
+
+
+                <td>
+
+                    {{ result['email'] }}
+
+                </td>
+
+
+                <td>
+
+                    {{ result['title'] }}
+
+                </td>
+
+
+                <td>
+
+                    {{ result['score'] }}
+
+                </td>
+
+
+                <td>
+
+                    {{ result['total'] }}
+
+                </td>
+
+
+                <td>
+
+                    {{ result['exam_date'] }}
+
+                </td>
+
+            </tr>
+
+
+            {% else %}
+
+
+            <tr>
+
+                <td colspan="6">
+
+                    No results available.
+
+                </td>
+
+            </tr>
+
+
+            {% endfor %}
+
+
+        </table>
+
+    </div>
+
+</body>
+
+</html>

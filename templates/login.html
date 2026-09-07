@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Login
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            Secure Exam
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('index') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('register') }}">
+                Register
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="form-container">
+
+        <h2>
+            Login
+        </h2>
+
+
+        {% with messages =
+        get_flashed_messages() %}
+
+        {% if messages %}
+
+        {% for message in messages %}
+
+        <div class="alert">
+
+            {{ message }}
+
+        </div>
+
+        {% endfor %}
+
+        {% endif %}
+
+        {% endwith %}
+
+
+        <form method="POST">
+
+            <label>
+                Email
+            </label>
+
+            <input type="email" name="email" required>
+
+
+            <label>
+                Password
+            </label>
+
+            <input type="password" name="password" required>
+
+
+            <button type="submit" class="btn full">
+
+                Login
+
+            </button>
+
+        </form>
+
+
+        <div class="admin-info">
+
+            <strong>
+                Default Admin
+            </strong>
+
+            <br>
+
+            Email:
+            admin@bbs.com
+
+            <br>
+
+            Password:
+            admin123
+
+        </div>
+
+    </div>
+
+</body>
+
+</html>

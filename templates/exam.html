@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+
+        {{ exam['title'] }}
+
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+
+    <div class="exam-header">
+
+        <div>
+
+            <h2>
+
+                {{ exam['title'] }}
+
+            </h2>
+
+        </div>
+
+
+        <div id="timer">
+
+            Time:
+
+            <span id="time">
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div class="exam-container">
+
+
+        <form id="examForm" method="POST" action="{{ url_for(
+            'submit_exam',
+            exam_id=exam['id']
+        ) }}">
+
+
+            {% for question in questions %}
+
+
+            <div class="question-box">
+
+                <h3>
+
+                    Q{{ loop.index }}.
+
+                    {{ question['question'] }}
+
+                </h3>
+
+
+                <label>
+
+                    <input type="radio" name="question_{{ question['id'] }}" value="A">
+
+                    {{ question['option_a'] }}
+
+                </label>
+
+
+                <label>
+
+                    <input type="radio" name="question_{{ question['id'] }}" value="B">
+
+                    {{ question['option_b'] }}
+
+                </label>
+
+
+                <label>
+
+                    <input type="radio" name="question_{{ question['id'] }}" value="C">
+
+                    {{ question['option_c'] }}
+
+                </label>
+
+
+                <label>
+
+                    <input type="radio" name="question_{{ question['id'] }}" value="D">
+
+                    {{ question['option_d'] }}
+
+                </label>
+
+            </div>
+
+
+            {% endfor %}
+
+
+            <button class="btn full" type="submit" onclick="return confirm('Are you sure you want to submit?')">
+
+                Submit Exam
+
+            </button>
+
+
+        </form>
+
+    </div>
+
+
+    <script>
+        const duration = {{ exam['duration'] | int }};
+
+    </script>
+
+
+    <script src="{{ url_for('static', filename='js/exam.js') }}">
+    </script>
+
+
+</body>
+
+</html>

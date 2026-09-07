@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Manage Questions
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            Manage Questions
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('admin_dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for(
+            'add_question',
+            exam_id=exam['id']
+        ) }}">
+
+                Add Question
+
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="container">
+
+        <h2>
+
+            {{ exam['title'] }}
+
+        </h2>
+
+
+        {% for question in questions %}
+
+
+        <div class="question-admin">
+
+            <h3>
+
+                Q{{ loop.index }}.
+
+                {{ question['question'] }}
+
+            </h3>
+
+
+            <p>
+                A. {{ question['option_a'] }}
+            </p>
+
+            <p>
+                B. {{ question['option_b'] }}
+            </p>
+
+            <p>
+                C. {{ question['option_c'] }}
+            </p>
+
+            <p>
+                D. {{ question['option_d'] }}
+            </p>
+
+
+            <p>
+
+                <strong>
+                    Correct Answer:
+                </strong>
+
+                {{ question['correct_answer'] }}
+
+            </p>
+
+
+            <form method="POST" action="{{ url_for(
+                'delete_question',
+                question_id=question['id'],
+                exam_id=exam['id']
+            ) }}" onsubmit="return confirm('Delete this question?')">
+
+                <button type="submit" class="btn danger">
+
+                    Delete Question
+
+                </button>
+
+            </form>
+
+        </div>
+
+
+        {% else %}
+
+
+        <p>
+            No questions available.
+        </p>
+
+
+        {% endfor %}
+
+    </div>
+
+</body>
+
+</html>

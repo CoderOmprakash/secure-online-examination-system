@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        Secure Online Examination System
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+    <nav>
+
+        <div class="logo">
+            Secure Exam
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('index') }}">
+                Home
+            </a>
+
+            <a href="{{ url_for('login') }}">
+                Login
+            </a>
+
+            <a href="{{ url_for('register') }}">
+                Register
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <section class="hero">
+
+        <h1>
+            Secure Online Examination System
+        </h1>
+
+        <p>
+            B.Tech 2nd Year Mini Project
+        </p>
+
+        <p>
+            BBS College of Engineering and Technology
+        </p>
+
+        <div class="hero-buttons">
+
+            <a href="{{ url_for('register') }}" class="btn">
+
+                Student Registration
+
+            </a>
+
+            <a href="{{ url_for('login') }}" class="btn secondary">
+
+                Login
+
+            </a>
+
+        </div>
+
+    </section>
+
+
+    <section class="features">
+
+        <div class="feature-card">
+
+            <h3>
+                Secure Login
+            </h3>
+
+            <p>
+                Password hashing and
+                session-based authentication.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <h3>
+                Online Exam
+            </h3>
+
+            <p>
+                Students can attempt
+                timed MCQ examinations.
+            </p>
+
+        </div>
+
+
+        <div class="feature-card">
+
+            <h3>
+                Instant Result
+            </h3>
+
+            <p>
+                Scores are calculated
+                automatically.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <footer>
+
+        <p>
+            Secure Online Examination System
+        </p>
+
+    </footer>
+
+</body>
+
+</html>

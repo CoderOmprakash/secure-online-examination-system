@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <title>
+        Add Question
+    </title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+
+    <nav>
+
+        <div class="logo">
+            Add Question
+        </div>
+
+        <div>
+
+            <a href="{{ url_for('admin_dashboard') }}">
+                Dashboard
+            </a>
+
+            <a href="{{ url_for(
+            'manage_questions',
+            exam_id=exam['id']
+        ) }}">
+                Manage Questions
+            </a>
+
+        </div>
+
+    </nav>
+
+
+    <div class="form-container wide">
+
+        <h2>
+
+            {{ exam['title'] }}
+
+        </h2>
+
+
+        <p>
+
+            Questions Added:
+
+            <strong>
+
+                {{ question_count }}
+
+            </strong>
+
+        </p>
+
+
+        {% with messages =
+        get_flashed_messages() %}
+
+        {% if messages %}
+
+        {% for message in messages %}
+
+        <div class="alert">
+
+            {{ message }}
+
+        </div>
+
+        {% endfor %}
+
+        {% endif %}
+
+        {% endwith %}
+
+
+        <form method="POST">
+
+
+            <label>
+                Question
+            </label>
+
+            <textarea name="question" required></textarea>
+
+
+            <label>
+                Option A
+            </label>
+
+            <input name="option_a" required>
+
+
+            <label>
+                Option B
+            </label>
+
+            <input name="option_b" required>
+
+
+            <label>
+                Option C
+            </label>
+
+            <input name="option_c" required>
+
+
+            <label>
+                Option D
+            </label>
+
+            <input name="option_d" required>
+
+
+            <label>
+                Correct Answer
+            </label>
+
+
+            <select name="correct_answer" required>
+
+                <option value="A">
+                    Option A
+                </option>
+
+                <option value="B">
+                    Option B
+                </option>
+
+                <option value="C">
+                    Option C
+                </option>
+
+                <option value="D">
+                    Option D
+                </option>
+
+            </select>
+
+
+            <button class="btn full" type="submit">
+
+                Add Question
+
+            </button>
+
+        </form>
+
+    </div>
+
+</body>
+
+</html>
