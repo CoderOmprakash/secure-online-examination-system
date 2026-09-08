@@ -96,7 +96,11 @@ def init_db():
     ).fetchone()
 
     if not admin:
-        password = generate_password_hash("admin123")
+        password = generate_password_hash("ompatel@123")
+        conn.execute(
+            "UPDATE users SET password = ? WHERE email = ? AND role = ?",
+            (generate_password_hash("ompatel@123"), "admin@bbs.com", "admin"),
+        )
 
         conn.execute(
             """
