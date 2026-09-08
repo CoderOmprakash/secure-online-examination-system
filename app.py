@@ -8,14 +8,14 @@ from datetime import datetime
 app = Flask(__name__)
 
 app.secret_key = os.environ.get(
-    "SECRET_KEY",
-    "change-this-secret-key-before-production"
+    "SECRET_KEY", "change-this-secret-key-before-production"
 )
 
 DATABASE = "database.db"
 
 
 # ---------------- DATABASE CONNECTION ---------------- #
+
 
 def get_db():
     conn = sqlite3.connect(DATABASE)
@@ -27,6 +27,7 @@ def get_db():
 
 
 # ---------------- CREATE DATABASE ---------------- #
+
 
 def init_db():
 
@@ -91,23 +92,19 @@ def init_db():
     # Default Admin Account
 
     admin = conn.execute(
-        "SELECT * FROM users WHERE email=?",
-        ("admin@bbs.com",)
+        "SELECT * FROM users WHERE email=?", ("admin@bbs.com",)
     ).fetchone()
 
     if not admin:
-
         password = generate_password_hash("admin123")
 
-        conn.execute("""
+        conn.execute(
+            """
             INSERT INTO users(name,email,password,role)
             VALUES(?,?,?,?)
-        """, (
-            "Administrator",
-            "admin@bbs.com",
-            password,
-            "admin"
-        ))
+        """,
+            ("Administrator", "admin@bbs.com", password, "admin"),
+        )
 
         conn.commit()
 
@@ -116,14 +113,13 @@ def init_db():
 
 # ---------------- LOGIN REQUIRED ---------------- #
 
+
 def login_required(f):
 
     @wraps(f)
-
     def wrapper(*args, **kwargs):
 
         if "user_id" not in session:
-
             flash("Please login first.")
 
             return redirect(url_for("login"))
@@ -135,14 +131,13 @@ def login_required(f):
 
 # ---------------- ADMIN REQUIRED ---------------- #
 
+
 def admin_required(f):
 
     @wraps(f)
-
     def wrapper(*args, **kwargs):
 
         if session.get("role") != "admin":
-
             flash("Admin access required.")
 
             return redirect(url_for("login"))
@@ -154,6 +149,7 @@ def admin_required(f):
 
 # ---------------- HOME ---------------- #
 
+
 @app.route("/")
 def index():
 
@@ -162,11 +158,11 @@ def index():
 
 # ---------------- REGISTER ---------------- #
 
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
 
     if request.method == "POST":
-
         name = request.form["name"].strip()
 
         email = request.form["email"].strip().lower()
@@ -174,7 +170,6 @@ def register():
         password = request.form["password"]
 
         if not name or not email or not password:
-
             flash("All fields are required.")
 
             return redirect(url_for("register"))
@@ -184,16 +179,13 @@ def register():
         conn = get_db()
 
         try:
-
-            conn.execute("""
+            conn.execute(
+                """
                 INSERT INTO users(name,email,password,role)
                 VALUES(?,?,?,?)
-            """, (
-                name,
-                email,
-                hashed_password,
-                "student"
-            ))
+            """,
+                (name, email, hashed_password, "student"),
+            )
 
             conn.commit()
 
@@ -202,11 +194,9 @@ def register():
             return redirect(url_for("login"))
 
         except sqlite3.IntegrityError:
-
             flash("Email already registered.")
 
         finally:
-
             conn.close()
 
     return render_template("register.html")
@@ -214,29 +204,22 @@ def register():
 
 # ---------------- LOGIN ---------------- #
 
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
 
     if request.method == "POST":
-
         email = request.form["email"].strip().lower()
 
         password = request.form["password"]
 
         conn = get_db()
 
-        user = conn.execute(
-            "SELECT * FROM users WHERE email=?",
-            (email,)
-        ).fetchone()
+        user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
 
         conn.close()
 
-        if user and check_password_hash(
-                user["password"],
-                password
-        ):
-
+        if user and check_password_hash(user["password"], password):
             session.clear()
 
             session["user_id"] = user["id"]
@@ -246,14 +229,9 @@ def login():
             session["role"] = user["role"]
 
             if user["role"] == "admin":
+                return redirect(url_for("admin_dashboard"))
 
-                return redirect(
-                    url_for("admin_dashboard")
-                )
-
-            return redirect(
-                url_for("student_dashboard")
-            )
+            return redirect(url_for("student_dashboard"))
 
         flash("Invalid email or password.")
 
@@ -261,6 +239,7 @@ def login():
 
 
 # ---------------- LOGOUT ---------------- #
+
 
 @app.route("/logout")
 def logout():
@@ -279,19 +258,18 @@ def logout():
 
 # ---------------- STUDENT DASHBOARD ---------------- #
 
+
 @app.route("/student")
 @login_required
 def student_dashboard():
 
     if session.get("role") != "student":
-
-        return redirect(
-            url_for("admin_dashboard")
-        )
+        return redirect(url_for("admin_dashboard"))
 
     conn = get_db()
 
-    exams = conn.execute("""
+    exams = conn.execute(
+        """
         SELECT
             exams.*,
 
@@ -312,153 +290,124 @@ def student_dashboard():
 
         ORDER BY exams.id DESC
 
-    """, (
-        session["user_id"],
-    )).fetchall()
+    """,
+        (session["user_id"],),
+    ).fetchall()
 
     conn.close()
 
-    return render_template(
-        "student_dashboard.html",
-        exams=exams
-    )
+    return render_template("student_dashboard.html", exams=exams)
 
 
 # ---------------- START EXAM ---------------- #
+
 
 @app.route("/exam/<int:exam_id>")
 @login_required
 def exam(exam_id):
 
     if session.get("role") != "student":
-
         return redirect(url_for("index"))
 
     conn = get_db()
 
-    previous = conn.execute("""
+    previous = conn.execute(
+        """
         SELECT *
         FROM results
         WHERE user_id=? AND exam_id=?
-    """, (
-        session["user_id"],
-        exam_id
-    )).fetchone()
+    """,
+        (session["user_id"], exam_id),
+    ).fetchone()
 
     if previous:
-
         conn.close()
 
         flash("You have already attempted this exam.")
 
-        return redirect(
-            url_for("student_dashboard")
-        )
+        return redirect(url_for("student_dashboard"))
 
-    exam_data = conn.execute(
-        "SELECT * FROM exams WHERE id=?",
-        (exam_id,)
-    ).fetchone()
+    exam_data = conn.execute("SELECT * FROM exams WHERE id=?", (exam_id,)).fetchone()
 
     if not exam_data:
-
         conn.close()
 
         flash("Exam not found.")
 
-        return redirect(
-            url_for("student_dashboard")
-        )
+        return redirect(url_for("student_dashboard"))
 
-    questions = conn.execute("""
+    questions = conn.execute(
+        """
         SELECT *
         FROM questions
         WHERE exam_id=?
         ORDER BY id
-    """, (
-        exam_id,
-    )).fetchall()
+    """,
+        (exam_id,),
+    ).fetchall()
 
     conn.close()
 
     if len(questions) == 0:
-
         flash("No questions available in this exam.")
 
-        return redirect(
-            url_for("student_dashboard")
-        )
+        return redirect(url_for("student_dashboard"))
 
-    return render_template(
-        "exam.html",
-        exam=exam_data,
-        questions=questions
-    )
+    return render_template("exam.html", exam=exam_data, questions=questions)
 
 
 # ---------------- SUBMIT EXAM ---------------- #
 
-@app.route(
-    "/submit_exam/<int:exam_id>",
-    methods=["POST"]
-)
+
+@app.route("/submit_exam/<int:exam_id>", methods=["POST"])
 @login_required
 def submit_exam(exam_id):
 
     if session.get("role") != "student":
-
         return redirect(url_for("index"))
 
     conn = get_db()
 
-    previous = conn.execute("""
+    previous = conn.execute(
+        """
         SELECT *
         FROM results
         WHERE user_id=? AND exam_id=?
-    """, (
-        session["user_id"],
-        exam_id
-    )).fetchone()
+    """,
+        (session["user_id"], exam_id),
+    ).fetchone()
 
     if previous:
-
         conn.close()
 
         flash("Exam already submitted.")
 
-        return redirect(
-            url_for("student_dashboard")
-        )
+        return redirect(url_for("student_dashboard"))
 
-    questions = conn.execute("""
+    questions = conn.execute(
+        """
         SELECT *
         FROM questions
         WHERE exam_id=?
-    """, (
-        exam_id,
-    )).fetchall()
+    """,
+        (exam_id,),
+    ).fetchall()
 
     score = 0
 
     total = len(questions)
 
     for question in questions:
-
-        answer = request.form.get(
-            f"question_{question['id']}"
-        )
+        answer = request.form.get(f"question_{question['id']}")
 
         if answer == question["correct_answer"]:
-
             score += 1
 
-    exam_date = datetime.now().strftime(
-        "%d-%m-%Y %H:%M"
-    )
+    exam_date = datetime.now().strftime("%d-%m-%Y %H:%M")
 
     try:
-
-        conn.execute("""
+        conn.execute(
+            """
             INSERT INTO results(
                 user_id,
                 exam_id,
@@ -469,37 +418,26 @@ def submit_exam(exam_id):
 
             VALUES(?,?,?,?,?)
 
-        """, (
-            session["user_id"],
-            exam_id,
-            score,
-            total,
-            exam_date
-        ))
+        """,
+            (session["user_id"], exam_id, score, total, exam_date),
+        )
 
         conn.commit()
 
     except sqlite3.IntegrityError:
-
         conn.close()
 
         flash("Exam already submitted.")
 
-        return redirect(
-            url_for("student_dashboard")
-        )
+        return redirect(url_for("student_dashboard"))
 
     conn.close()
 
-    return redirect(
-        url_for(
-            "result",
-            exam_id=exam_id
-        )
-    )
+    return redirect(url_for("result", exam_id=exam_id))
 
 
 # ---------------- RESULT ---------------- #
+
 
 @app.route("/result/<int:exam_id>")
 @login_required
@@ -507,7 +445,8 @@ def result(exam_id):
 
     conn = get_db()
 
-    result_data = conn.execute("""
+    result_data = conn.execute(
+        """
         SELECT
             results.*,
             exams.title
@@ -521,50 +460,41 @@ def result(exam_id):
             results.user_id=?
             AND results.exam_id=?
 
-    """, (
-        session["user_id"],
-        exam_id
-    )).fetchone()
+    """,
+        (session["user_id"], exam_id),
+    ).fetchone()
 
     conn.close()
 
     if not result_data:
-
         flash("Result not found.")
 
-        return redirect(
-            url_for("student_dashboard")
-        )
+        return redirect(url_for("student_dashboard"))
 
     percentage = 0
 
     if result_data["total"] > 0:
-
-        percentage = (
-            result_data["score"]
-            / result_data["total"]
-        ) * 100
+        percentage = (result_data["score"] / result_data["total"]) * 100
 
     return render_template(
-        "result.html",
-        result=result_data,
-        percentage=round(percentage, 2)
+        "result.html", result=result_data, percentage=round(percentage, 2)
     )
 
 
 # ---------------- MY RESULTS ---------------- #
+
 
 @app.route("/my_results")
 @login_required
 def my_results():
 
     if session.get("role") != "student":
-
         return redirect(url_for("index"))
 
     conn = get_db()
 
-    results = conn.execute("""
+    results = conn.execute(
+        """
         SELECT
             results.*,
             exams.title
@@ -578,16 +508,13 @@ def my_results():
 
         ORDER BY results.id DESC
 
-    """, (
-        session["user_id"],
-    )).fetchall()
+    """,
+        (session["user_id"],),
+    ).fetchall()
 
     conn.close()
 
-    return render_template(
-        "my_results.html",
-        results=results
-    )
+    return render_template("my_results.html", results=results)
 
 
 # =====================================================
@@ -596,6 +523,7 @@ def my_results():
 
 
 # ---------------- ADMIN DASHBOARD ---------------- #
+
 
 @app.route("/admin")
 @admin_required
@@ -636,60 +564,47 @@ def admin_dashboard():
         "admin_dashboard.html",
         exams=exams,
         student_count=student_count,
-        result_count=result_count
+        result_count=result_count,
     )
 
 
 # ---------------- CREATE EXAM ---------------- #
 
-@app.route(
-    "/create_exam",
-    methods=["GET", "POST"]
-)
+
+@app.route("/create_exam", methods=["GET", "POST"])
 @admin_required
 def create_exam():
 
     if request.method == "POST":
-
         title = request.form["title"].strip()
 
         duration = request.form["duration"]
 
         if not title:
-
             flash("Exam title is required.")
 
-            return redirect(
-                url_for("create_exam")
-            )
+            return redirect(url_for("create_exam"))
 
         try:
-
             duration = int(duration)
 
             if duration <= 0:
-
                 raise ValueError
 
         except ValueError:
+            flash("Duration must be a positive number.")
 
-            flash(
-                "Duration must be a positive number."
-            )
-
-            return redirect(
-                url_for("create_exam")
-            )
+            return redirect(url_for("create_exam"))
 
         conn = get_db()
 
-        cursor = conn.execute("""
+        cursor = conn.execute(
+            """
             INSERT INTO exams(title,duration)
             VALUES(?,?)
-        """, (
-            title,
-            duration
-        ))
+        """,
+            (title, duration),
+        )
 
         conn.commit()
 
@@ -699,90 +614,51 @@ def create_exam():
 
         flash("Exam created successfully.")
 
-        return redirect(
-            url_for(
-                "add_question",
-                exam_id=exam_id
-            )
-        )
+        return redirect(url_for("add_question", exam_id=exam_id))
 
-    return render_template(
-        "create_exam.html"
-    )
+    return render_template("create_exam.html")
 
 
 # ---------------- ADD QUESTION ---------------- #
 
-@app.route(
-    "/add_question/<int:exam_id>",
-    methods=["GET", "POST"]
-)
+
+@app.route("/add_question/<int:exam_id>", methods=["GET", "POST"])
 @admin_required
 def add_question(exam_id):
 
     conn = get_db()
 
-    exam_data = conn.execute(
-        "SELECT * FROM exams WHERE id=?",
-        (exam_id,)
-    ).fetchone()
+    exam_data = conn.execute("SELECT * FROM exams WHERE id=?", (exam_id,)).fetchone()
 
     if not exam_data:
-
         conn.close()
 
         flash("Exam not found.")
 
-        return redirect(
-            url_for("admin_dashboard")
-        )
+        return redirect(url_for("admin_dashboard"))
 
     if request.method == "POST":
+        question = request.form["question"].strip()
 
-        question = request.form[
-            "question"
-        ].strip()
+        option_a = request.form["option_a"].strip()
 
-        option_a = request.form[
-            "option_a"
-        ].strip()
+        option_b = request.form["option_b"].strip()
 
-        option_b = request.form[
-            "option_b"
-        ].strip()
+        option_c = request.form["option_c"].strip()
 
-        option_c = request.form[
-            "option_c"
-        ].strip()
+        option_d = request.form["option_d"].strip()
 
-        option_d = request.form[
-            "option_d"
-        ].strip()
+        correct_answer = request.form["correct_answer"]
 
-        correct_answer = request.form[
-            "correct_answer"
-        ]
-
-        if not all([
-            question,
-            option_a,
-            option_b,
-            option_c,
-            option_d
-        ]):
-
+        if not all([question, option_a, option_b, option_c, option_d]):
             conn.close()
 
             flash("Please fill all fields.")
 
-            return redirect(
-                url_for(
-                    "add_question",
-                    exam_id=exam_id
-                )
-            )
+            return redirect(url_for("add_question", exam_id=exam_id))
 
-        conn.execute("""
+        conn.execute(
+            """
             INSERT INTO questions(
                 exam_id,
                 question,
@@ -795,90 +671,72 @@ def add_question(exam_id):
 
             VALUES(?,?,?,?,?,?,?)
 
-        """, (
-            exam_id,
-            question,
-            option_a,
-            option_b,
-            option_c,
-            option_d,
-            correct_answer
-        ))
+        """,
+            (exam_id, question, option_a, option_b, option_c, option_d, correct_answer),
+        )
 
         conn.commit()
 
         flash("Question added successfully.")
 
-    question_count = conn.execute("""
+    question_count = conn.execute(
+        """
         SELECT COUNT(*) AS count
         FROM questions
         WHERE exam_id=?
-    """, (
-        exam_id,
-    )).fetchone()["count"]
+    """,
+        (exam_id,),
+    ).fetchone()["count"]
 
     conn.close()
 
     return render_template(
-        "add_question.html",
-        exam=exam_data,
-        question_count=question_count
+        "add_question.html", exam=exam_data, question_count=question_count
     )
 
 
 # ---------------- MANAGE QUESTIONS ---------------- #
 
-@app.route(
-    "/manage_questions/<int:exam_id>"
-)
+
+@app.route("/manage_questions/<int:exam_id>")
 @admin_required
 def manage_questions(exam_id):
 
     conn = get_db()
 
-    exam_data = conn.execute(
-        "SELECT * FROM exams WHERE id=?",
-        (exam_id,)
-    ).fetchone()
+    exam_data = conn.execute("SELECT * FROM exams WHERE id=?", (exam_id,)).fetchone()
 
-    questions = conn.execute("""
+    questions = conn.execute(
+        """
         SELECT *
         FROM questions
         WHERE exam_id=?
         ORDER BY id
-    """, (
-        exam_id,
-    )).fetchall()
+    """,
+        (exam_id,),
+    ).fetchall()
 
     conn.close()
 
-    return render_template(
-        "manage_questions.html",
-        exam=exam_data,
-        questions=questions
-    )
+    return render_template("manage_questions.html", exam=exam_data, questions=questions)
 
 
 # ---------------- DELETE QUESTION ---------------- #
 
-@app.route(
-    "/delete_question/<int:question_id>/<int:exam_id>",
-    methods=["POST"]
-)
+
+@app.route("/delete_question/<int:question_id>/<int:exam_id>", methods=["POST"])
 @admin_required
-def delete_question(
-    question_id,
-    exam_id
-):
+def delete_question(question_id, exam_id):
 
     conn = get_db()
 
-    conn.execute("""
+    conn.execute(
+        """
         DELETE FROM questions
         WHERE id=?
-    """, (
-        question_id,
-    ))
+    """,
+        (question_id,),
+    )
 
     conn.commit()
 
@@ -886,42 +744,26 @@ def delete_question(
 
     flash("Question deleted.")
 
-    return redirect(
-        url_for(
-            "manage_questions",
-            exam_id=exam_id
-        )
-    )
+    return redirect(url_for("manage_questions", exam_id=exam_id))
 
 
 # ---------------- DELETE EXAM ---------------- #
 
-@app.route(
-    "/delete_exam/<int:exam_id>",
-    methods=["POST"]
-)
+
+@app.route("/delete_exam/<int:exam_id>", methods=["POST"])
 @admin_required
 def delete_exam(exam_id):
 
     conn = get_db()
 
     # Delete results first
-    conn.execute(
-        "DELETE FROM results WHERE exam_id=?",
-        (exam_id,)
-    )
+    conn.execute("DELETE FROM results WHERE exam_id=?", (exam_id,))
 
     # Delete questions
-    conn.execute(
-        "DELETE FROM questions WHERE exam_id=?",
-        (exam_id,)
-    )
+    conn.execute("DELETE FROM questions WHERE exam_id=?", (exam_id,))
 
     # Delete exam
-    conn.execute(
-        "DELETE FROM exams WHERE id=?",
-        (exam_id,)
-    )
+    conn.execute("DELETE FROM exams WHERE id=?", (exam_id,))
 
     conn.commit()
 
@@ -929,12 +771,11 @@ def delete_exam(exam_id):
 
     flash("Exam deleted successfully.")
 
-    return redirect(
-        url_for("admin_dashboard")
-    )
+    return redirect(url_for("admin_dashboard"))
 
 
 # ---------------- ADMIN RESULTS ---------------- #
+
 
 @app.route("/admin_results")
 @admin_required
@@ -963,20 +804,13 @@ def admin_results():
 
     conn.close()
 
-    return render_template(
-        "admin_results.html",
-        results=results
-    )
+    return render_template("admin_results.html", results=results)
 
 
 # ---------------- RUN APP ---------------- #
 
+# Initialize database when the application starts
+init_db()
+
 if __name__ == "__main__":
-
-    init_db()
-
-    app.run(
-        debug=True,
-        host="127.0.0.1",
-        port=5000
-    )
+    app.run(debug=True, host="0.0.0.0", port=5000)
