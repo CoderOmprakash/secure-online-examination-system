@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html>
 
 <head>
@@ -8,38 +7,58 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>
-
-        {{ exam['title'] }}
-
-    </title>
+    <title>{{ exam['title'] }}</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        .question-box {
+            display: none;
+        }
+
+        .question-box.active {
+            display: block;
+        }
+
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .navigation-buttons button {
+            min-width: 120px;
+        }
+
+        .question-number {
+            text-align: center;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        #submitBtn {
+            display: none;
+        }
+    </style>
 
 </head>
 
 <body>
 
-
     <div class="exam-header">
 
         <div>
-
             <h2>
-
                 {{ exam['title'] }}
-
             </h2>
-
         </div>
-
 
         <div id="timer">
 
             Time:
 
-            <span id="time">
-            </span>
+            <span id="time"></span>
 
         </div>
 
@@ -48,17 +67,17 @@
 
     <div class="exam-container">
 
+        <form id="examForm" method="POST" action="{{ url_for('submit_exam', exam_id=exam['id']) }}">
 
-        <form id="examForm" method="POST" action="{{ url_for(
-            'submit_exam',
-            exam_id=exam['id']
-        ) }}">
+            <div class="question-number">
+                Question <span id="currentQuestion">1</span>
+                of {{ questions|length }}
+            </div>
 
 
             {% for question in questions %}
 
-
-            <div class="question-box">
+            <div class="question-box {% if loop.first %}active{% endif %}">
 
                 <h3>
 
@@ -106,16 +125,33 @@
 
             </div>
 
-
             {% endfor %}
 
 
-            <button class="btn full" type="submit" onclick="return confirm('Are you sure you want to submit?')">
+            <div class="navigation-buttons">
 
-                Submit Exam
+                <button type="button" id="prevBtn" class="btn" onclick="previousQuestion()">
 
-            </button>
+                    ← Previous
 
+                </button>
+
+
+                <button type="button" id="nextBtn" class="btn" onclick="nextQuestion()">
+
+                    Next →
+
+                </button>
+
+
+                <button type="submit" id="submitBtn" class="btn"
+                    onclick="return confirm('Are you sure you want to submit?')">
+
+                    Submit Exam
+
+                </button>
+
+            </div>
 
         </form>
 
@@ -123,14 +159,100 @@
 
 
     <script>
-        const duration = {{ exam['duration'] | int }};
+        const duration = Number("{{ exam['duration'] }}");
+
+        let currentQuestion = 0;
+
+        const questions = document.querySelectorAll(".question-box");
+
+        const prevBtn = document.getElementById("prevBtn");
+
+        const nextBtn = document.getElementById("nextBtn");
+
+        const submitBtn = document.getElementById("submitBtn");
+
+        const currentQuestionText =
+            document.getElementById("currentQuestion");
+
+
+        function showQuestion(index) {
+
+            questions.forEach(function (question, i) {
+
+                question.classList.remove("active");
+
+                if (i === index) {
+
+                    question.classList.add("active");
+
+                }
+
+            });
+
+
+            currentQuestionText.textContent = index + 1;
+
+
+            if (index === 0) {
+
+                prevBtn.style.display = "none";
+
+            } else {
+
+                prevBtn.style.display = "inline-block";
+
+            }
+
+
+            if (index === questions.length - 1) {
+
+                nextBtn.style.display = "none";
+
+                submitBtn.style.display = "inline-block";
+
+            } else {
+
+                nextBtn.style.display = "inline-block";
+
+                submitBtn.style.display = "none";
+
+            }
+
+        }
+
+
+        function nextQuestion() {
+
+            if (currentQuestion < questions.length - 1) {
+
+                currentQuestion++;
+
+                showQuestion(currentQuestion);
+
+            }
+
+        }
+
+
+        function previousQuestion() {
+
+            if (currentQuestion > 0) {
+
+                currentQuestion--;
+
+                showQuestion(currentQuestion);
+
+            }
+
+        }
+
+
+        showQuestion(currentQuestion);
 
     </script>
 
 
-    <script src="{{ url_for('static', filename='js/exam.js') }}">
-    </script>
-
+    <script src="{{ url_for('static', filename='js/exam.js') }}"></script>
 
 </body>
 
