@@ -108,16 +108,17 @@
                     {{ exam['question_count'] }}
 
                 </p>
+{% if exam['attempted'] > 0 %}
 
+<button class="btn disabled" disabled>
+    Already Attempted
+</button>
 
-                {% if exam['attempted'] > 0 %}
+<br><br>
 
-                <button class="btn disabled" disabled>
-
-                    Already Attempted
-
-                </button>
-
+<a href="{{ url_for('result', exam_id=exam['id']) }}" class="btn">
+    View Result
+</a>     
                 {% elif exam['question_count'] == 0 %}
 
                 <button class="btn disabled" disabled>
